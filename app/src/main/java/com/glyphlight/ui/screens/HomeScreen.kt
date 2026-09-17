@@ -110,15 +110,22 @@ private fun IdleHome(viewModel: TorchViewModel, onBrightnessRowPositioned: (Floa
                 ) { viewModel.openSleepTimerDialog() },
         ) {
             val remaining = viewModel.sleepTimerRemainingSeconds
+            // A staged timer shows its duration; it only counts down once the light is on,
+            // so an idle screen otherwise gives no sign that a timer is set at all.
+            val timerLabel = when {
+                remaining != null -> formatRemaining(remaining)
+                viewModel.sleepTimerPending -> "${viewModel.sleepTimerMinutesSetting} MIN"
+                else -> null
+            }
             Icon(
                 imageVector = Icons.Filled.Bedtime,
                 contentDescription = "Sleep timer",
                 tint = accent,
                 modifier = Modifier.size(30.dp),
             )
-            if (remaining != null) {
+            if (timerLabel != null) {
                 Text(
-                    text = formatRemaining(remaining),
+                    text = timerLabel,
                     color = accent,
                     fontFamily = FontFamily.Monospace,
                     fontSize = 13.sp,
@@ -261,6 +268,9 @@ private fun TorchOverlayScreen(viewModel: TorchViewModel, brightnessRowTopPx: Fl
                     // Time left on the sleep timer, revealed by the same tap that reveals
                     // the controls. Tap the readout itself to cancel the timer.
                     if (remainingSeconds != null) {
+                        // The overlay fill IS the accent color, so accent-on-accent text
+                        // would be invisible. Sit it on the same darkened panel the
+                        // brightness row uses.
                         Text(
                             text = formatRemaining(remainingSeconds),
                             color = accent,
@@ -268,10 +278,13 @@ private fun TorchOverlayScreen(viewModel: TorchViewModel, brightnessRowTopPx: Fl
                             fontSize = 13.sp,
                             modifier = Modifier
                                 .padding(top = 8.dp)
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Color.Black.copy(alpha = 0.35f))
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,
-                                ) { viewModel.cancelSleepTimerFromUser() },
+                                ) { viewModel.cancelSleepTimerFromUser() }
+                                .padding(horizontal = 14.dp, vertical = 6.dp),
                         )
                     }
                 }

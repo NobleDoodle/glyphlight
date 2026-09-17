@@ -4,21 +4,28 @@ A minimal screen flashlight for Android. The whole UI is drawn as
 dot-matrix glyphs on a pure black (OLED-friendly) background, with every accent
 element following one user-selected color.
 
+<p align="center">
+  <img src="docs/home.png" alt="Glyphlight home screen: dotted brightness slider, moon glyph, dot-matrix torch button, SOS, and color swatches on pure black" width="300">
+</p>
+
 ## Features
 
 - **Big torch button** — dotted ring + dot-matrix flashlight glyph. Tap to fill
   the screen with the selected color at the chosen brightness.
 - **Brightness slider** — dotted, top of screen; sets the real screen backlight
   brightness (via the window's `screenBrightness` attribute), not just an overlay.
-- **Sleep timer** — tap the moon glyph and pick a duration. The countdown starts
-  immediately and survives turning the light on and off, so it always fires when
-  set. While the light is on, tap the screen to reveal the time left directly
-  underneath the brightness slider; tap that readout to cancel early. When it
-  elapses the flashlight turns off and the app stops holding the display awake,
-  so the screen sleeps on your normal system timeout.
+- **Sleep timer** — tap the moon glyph and pick a duration. It is staged, not
+  started: the countdown begins when you switch the light on, and the idle
+  screen shows the staged duration so you know one is set. While the light is
+  on, tap the screen to reveal the time left directly underneath the brightness
+  slider; tap that readout to cancel. Turning the light off early puts the timer
+  back to staged, ready for the next press. When it elapses the flashlight turns
+  off and the app stops holding the display awake, so the screen sleeps on your
+  normal system timeout.
 
   Glyphlight cannot lock the screen instantly — Android reserves that for device
   admin and accessibility services, and this app requests no permissions.
+
 - **SOS** — dot-matrix "SOS" label strobes the selected color in real Morse
   timing (`... --- ...`) until tapped again.
 - **Color picker** — three-dot menu-adjacent quick swatches, plus a full

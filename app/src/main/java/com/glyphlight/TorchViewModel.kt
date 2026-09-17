@@ -62,6 +62,14 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
 
     var sleepTimerMinutesSetting by mutableIntStateOf(prefs.sleepTimerMinutes)
         private set
+    /**
+     * A duration has been chosen and is waiting for the light to be switched on. The
+     * countdown deliberately does not begin at the moment it is set.
+     */
+    var sleepTimerPending by mutableStateOf(false)
+        private set
+
+    /** Non-null only while the countdown is actually running, which means the light is on. */
     var sleepTimerRemainingSeconds by mutableStateOf<Int?>(null)
         private set
     var showSleepTimerDialog by mutableStateOf(false)
@@ -82,6 +90,7 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
             sosJob?.cancel()
             homeMode = HomeMode.Torch
             isLightOn = true
+            startPendingSleepTimer()
         }
     }
 
@@ -101,6 +110,7 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
+        startPendingSleepTimer()
     }
 
     fun stopAll() {
@@ -108,6 +118,9 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
         sosJob = null
         homeMode = HomeMode.Idle
         isLightOn = false
+        // The countdown only runs while the light is on. Turning the light off puts the
+        // timer back to pending, so the next press starts the full duration over again.
+        stopRunningCountdown()
     }
 
     fun updateBrightness(value: Float) {
@@ -204,7 +217,24 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
         sleepTimerMinutesSetting = minutes
         prefs.sleepTimerMinutes = minutes
         showSleepTimerDialog = false
-        armSleepTimer(minutes)
+        // Staged only. Setting a timer never starts it; the countdown begins when the
+        // light is switched on. If the light happens to be on already, start immediately.
+        stopRunningCountdown()
+        sleepTimerPending = true
+        if (isOverlayActive) startPendingSleepTimer()
+    }
+
+    /** Begins a staged countdown. Called when the light comes on; a no-op otherwise. */
+    private fun startPendingSleepTimer() {
+        if (!sleepTimerPending || sleepTimerRemainingSeconds != null) return
+        armSleepTimer(sleepTimerMinutesSetting)
+    }
+
+    /** Stops a running countdown but keeps the timer staged for the next light-on. */
+    private fun stopRunningCountdown() {
+        sleepTimerJob?.cancel()
+        sleepTimerJob = null
+        sleepTimerRemainingSeconds = null
     }
 
     /**
@@ -247,15 +277,18 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
         sosJob?.cancel()
         sosJob = null
         sleepTimerJob = null
+        sleepTimerRemainingSeconds = null
+        // The timer did its job: one shot, so it is no longer staged.
+        sleepTimerPending = false
         homeMode = HomeMode.Idle
         isLightOn = false
         screen = Screen.Home
     }
 
+    /** Clears the timer completely: any running countdown and the staged duration. */
     fun cancelSleepTimer() {
-        sleepTimerJob?.cancel()
-        sleepTimerJob = null
-        sleepTimerRemainingSeconds = null
+        stopRunningCountdown()
+        sleepTimerPending = false
     }
 
     /**
