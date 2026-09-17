@@ -82,7 +82,7 @@ fun SleepTimerDialog(
                     )
                 }
                 Text(
-                    text = "The flashlight will turn off after the specified time",
+                    text = "The flashlight turns off and the display goes to sleep after the specified time",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,

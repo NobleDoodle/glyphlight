@@ -239,7 +239,10 @@ private fun TorchOverlayScreen(viewModel: TorchViewModel, brightnessRowTopPx: Fl
                 }
             },
     ) {
-        if (!isSos && viewModel.brightnessBarEnabled) {
+        // The brightness row keeps its exact measured position as the first child of this
+        // column, so the sleep-timer readout below it never displaces the slider.
+        val remainingSeconds = viewModel.sleepTimerRemainingSeconds
+        if (!isSos && (viewModel.brightnessBarEnabled || remainingSeconds != null)) {
             AnimatedVisibility(
                 visible = controlsVisible,
                 modifier = Modifier
@@ -248,7 +251,30 @@ private fun TorchOverlayScreen(viewModel: TorchViewModel, brightnessRowTopPx: Fl
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
-                BrightnessRow(viewModel, modifier = Modifier.padding(horizontal = 28.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = 28.dp),
+                ) {
+                    if (viewModel.brightnessBarEnabled) {
+                        BrightnessRow(viewModel)
+                    }
+                    // Time left on the sleep timer, revealed by the same tap that reveals
+                    // the controls. Tap the readout itself to cancel the timer.
+                    if (remainingSeconds != null) {
+                        Text(
+                            text = formatRemaining(remainingSeconds),
+                            color = accent,
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 13.sp,
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                ) { viewModel.cancelSleepTimerFromUser() },
+                        )
+                    }
+                }
             }
         }
         if (isSos) {

@@ -10,8 +10,15 @@ element following one user-selected color.
   the screen with the selected color at the chosen brightness.
 - **Brightness slider** — dotted, top of screen; sets the real screen backlight
   brightness (via the window's `screenBrightness` attribute), not just an overlay.
-- **Sleep timer** — tap the moon glyph, pick a duration, and the torch/SOS auto-
-  turns off when it elapses. Tap the countdown badge to cancel early.
+- **Sleep timer** — tap the moon glyph and pick a duration. The countdown starts
+  immediately and survives turning the light on and off, so it always fires when
+  set. While the light is on, tap the screen to reveal the time left directly
+  underneath the brightness slider; tap that readout to cancel early. When it
+  elapses the flashlight turns off and the app stops holding the display awake,
+  so the screen sleeps on your normal system timeout.
+
+  Glyphlight cannot lock the screen instantly — Android reserves that for device
+  admin and accessibility services, and this app requests no permissions.
 - **SOS** — dot-matrix "SOS" label strobes the selected color in real Morse
   timing (`... --- ...`) until tapped again.
 - **Color picker** — three-dot menu-adjacent quick swatches, plus a full

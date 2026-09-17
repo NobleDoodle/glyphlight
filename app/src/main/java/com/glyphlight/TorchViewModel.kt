@@ -91,7 +91,6 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
             stopAll()
             return
         }
-        cancelSleepTimer()
         homeMode = HomeMode.Sos
         sosJob?.cancel()
         sosJob = viewModelScope.launch {
@@ -107,7 +106,6 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
     fun stopAll() {
         sosJob?.cancel()
         sosJob = null
-        cancelSleepTimer()
         homeMode = HomeMode.Idle
         isLightOn = false
     }
@@ -209,21 +207,49 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
         armSleepTimer(minutes)
     }
 
+    /**
+     * Counts down against a wall-clock deadline rather than accumulating 1s delays, so the
+     * displayed time cannot drift away from the real remaining time if the coroutine is
+     * throttled while the app sits in the background.
+     */
     private fun armSleepTimer(minutes: Int) {
         sleepTimerJob?.cancel()
+        val deadlineMs = System.currentTimeMillis() + minutes * 60_000L
         sleepTimerRemainingSeconds = minutes * 60
         sleepTimerJob = viewModelScope.launch {
             while (isActive) {
-                val remaining = sleepTimerRemainingSeconds ?: break
-                if (remaining <= 0) {
+                val msLeft = deadlineMs - System.currentTimeMillis()
+                if (msLeft <= 0) {
                     sleepTimerRemainingSeconds = null
-                    stopAll()
+                    onSleepTimerExpired()
                     break
                 }
-                delay(1000)
-                sleepTimerRemainingSeconds = remaining - 1
+                // Round up so a 5:00 timer reads "5:00" rather than "4:59" on the first frame.
+                sleepTimerRemainingSeconds = ((msLeft + 999) / 1000).toInt()
+                delay(msLeft.coerceAtMost(1000L))
             }
         }
+    }
+
+    /**
+     * The timer elapsed: kill any active light and let the display fall asleep.
+     *
+     * Android gives an ordinary app no way to lock the screen outright (that needs device
+     * admin or an accessibility service), so instead this drops every reason the app had to
+     * hold the display awake. FLAG_KEEP_SCREEN_ON is derived from "overlay active" or
+     * "color picker open", so returning to an idle Home clears it and the display sleeps on
+     * the normal system timeout.
+     *
+     * Deliberately does not route through [stopAll] plus [cancelSleepTimer] - the job is
+     * already finishing, so cancelling it from inside itself is needless.
+     */
+    private fun onSleepTimerExpired() {
+        sosJob?.cancel()
+        sosJob = null
+        sleepTimerJob = null
+        homeMode = HomeMode.Idle
+        isLightOn = false
+        screen = Screen.Home
     }
 
     fun cancelSleepTimer() {
@@ -232,7 +258,11 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
         sleepTimerRemainingSeconds = null
     }
 
-    /** User-initiated cancel (tapping the countdown badge), as opposed to the silent cleanup in [stopAll]. */
+    /**
+     * User-initiated cancel: tapping the countdown readout. This is the only way to stop an
+     * armed timer short of its deadline - turning the light off no longer cancels it, so a
+     * timer always fires once set.
+     */
     fun cancelSleepTimerFromUser() {
         click()
         cancelSleepTimer()
