@@ -43,9 +43,16 @@ Download `glyphlight.apk` from the [latest release](https://github.com/NobleDood
 and sideload it (`adb install glyphlight.apk`, or open the file on-device and allow
 installation from unknown sources).
 
-The released APK is signed with the standard Android debug certificate, so Android
-may warn about the installation source. A production build signed with a private
-release keystore is not yet published.
+The released APK is a minified release build signed with a private release key.
+Android may still warn about installing outside the Play Store, which is expected
+for a sideloaded app. You can confirm the APK is genuine before installing:
+
+```sh
+apksigner verify --print-certs glyphlight.apk
+```
+
+It should report `CN=NobleDoodle, O=NobleDoodle, C=US` with SHA-256 fingerprint
+`485e125a95dcb392912d09fb8f87b7d425b7ff196e6be870191a466fb3fcd937`.
 
 ## Building
 
