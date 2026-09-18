@@ -76,3 +76,7 @@ app/src/main/java/com/glyphlight/
   ui/screens/                – Home (idle + torch/SOS overlay), Settings, Color Picker
   util/                     – color math, Morse timing, sound, SharedPreferences
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
