@@ -12,7 +12,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.glyphlight.util.MorseSos
 import com.glyphlight.util.PreferencesRepository
-import com.glyphlight.util.SoundEffects
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -23,7 +22,6 @@ enum class HomeMode { Idle, Torch, Sos }
 
 class TorchViewModel(application: Application) : AndroidViewModel(application) {
     private val prefs = PreferencesRepository(application)
-    private val sound = SoundEffects()
 
     var screen by mutableStateOf(Screen.Home)
         private set
@@ -57,8 +55,6 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
         private set
     var preventColorPickerScreenLock by mutableStateOf(prefs.preventColorPickerScreenLock)
         private set
-    var soundEffectsEnabled by mutableStateOf(prefs.soundEffectsEnabled)
-        private set
 
     var sleepTimerMinutesSetting by mutableIntStateOf(prefs.sleepTimerMinutes)
         private set
@@ -78,12 +74,7 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
     private var sosJob: Job? = null
     private var sleepTimerJob: Job? = null
 
-    fun click() {
-        if (soundEffectsEnabled) sound.click()
-    }
-
     fun toggleTorch() {
-        click()
         if (homeMode == HomeMode.Torch) {
             stopAll()
         } else {
@@ -95,7 +86,6 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startSos() {
-        click()
         if (homeMode == HomeMode.Sos) {
             stopAll()
             return
@@ -129,13 +119,11 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun selectColor(color: Color) {
-        click()
         selectedColor = color
         prefs.selectedColorArgb = color.toArgb()
     }
 
     fun openColorPicker() {
-        click()
         editingColor = selectedColor
         screen = Screen.ColorPicker
     }
@@ -145,13 +133,11 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun applyEditingColor() {
-        click()
         selectColor(editingColor)
         screen = Screen.Home
     }
 
     fun saveEditingColorToPalette() {
-        click()
         val argb = editingColor.toArgb()
         val current = savedColors.map { it.toArgb() }.toMutableList()
         current.remove(argb)
@@ -162,7 +148,6 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteSavedColor(color: Color) {
-        click()
         val argb = color.toArgb()
         val updated = savedColors.filter { it.toArgb() != argb }
         savedColors = updated
@@ -170,7 +155,6 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun openSettings() {
-        click()
         screen = Screen.Settings
     }
 
@@ -198,13 +182,7 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
         prefs.preventColorPickerScreenLock = value
     }
 
-    fun updateSoundEffectsEnabled(value: Boolean) {
-        soundEffectsEnabled = value
-        prefs.soundEffectsEnabled = value
-    }
-
     fun openSleepTimerDialog() {
-        click()
         showSleepTimerDialog = true
     }
 
@@ -213,7 +191,6 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun confirmSleepTimer(minutes: Int) {
-        click()
         sleepTimerMinutesSetting = minutes
         prefs.sleepTimerMinutes = minutes
         showSleepTimerDialog = false
@@ -297,14 +274,12 @@ class TorchViewModel(application: Application) : AndroidViewModel(application) {
      * timer always fires once set.
      */
     fun cancelSleepTimerFromUser() {
-        click()
         cancelSleepTimer()
     }
 
     override fun onCleared() {
         sosJob?.cancel()
         sleepTimerJob?.cancel()
-        sound.release()
         super.onCleared()
     }
 }

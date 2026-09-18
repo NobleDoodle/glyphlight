@@ -32,8 +32,7 @@ element following one user-selected color.
   HSL/RGB picker with hex entry, presets, and a saved-colors palette (with
   delete mode).
 - **Settings** — brightness bar visibility, full-app vs. torch-only brightness
-  control, screen-lock prevention (main + color picker), and a sound-effects
-  toggle (short UI blips via `ToneGenerator`).
+  control, and screen-lock prevention (main + color picker).
 
 No permissions are required — the "flashlight" is the screen itself, not the
 camera LED.
@@ -74,7 +73,7 @@ app/src/main/java/com/glyphlight/
   TorchViewModel.kt         – all app state (torch/SOS/settings/colors)
   ui/components/            – dot-matrix primitives (ring, slider, glyphs, swatches)
   ui/screens/                – Home (idle + torch/SOS overlay), Settings, Color Picker
-  util/                     – color math, Morse timing, sound, SharedPreferences
+  util/                     – color math, Morse timing, SharedPreferences
 ```
 
 ## Support

@@ -36,9 +36,6 @@ class PreferencesRepository(context: Context) {
         get() = prefs.getBoolean(KEY_PREVENT_PICKER_LOCK, true)
         set(value) = prefs.edit().putBoolean(KEY_PREVENT_PICKER_LOCK, value).apply()
 
-    var soundEffectsEnabled: Boolean
-        get() = prefs.getBoolean(KEY_SOUND_EFFECTS, true)
-        set(value) = prefs.edit().putBoolean(KEY_SOUND_EFFECTS, value).apply()
 
     var savedColors: List<Int>
         get() = prefs.getString(KEY_SAVED_COLORS, "")
@@ -56,7 +53,6 @@ class PreferencesRepository(context: Context) {
         private const val KEY_FULL_BRIGHTNESS = "full_brightness_control"
         private const val KEY_PREVENT_MAIN_LOCK = "prevent_main_lock"
         private const val KEY_PREVENT_PICKER_LOCK = "prevent_picker_lock"
-        private const val KEY_SOUND_EFFECTS = "sound_effects"
         private const val KEY_SAVED_COLORS = "saved_colors"
 
         /** A warm accent red, close to the reference mockups. */

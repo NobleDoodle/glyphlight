@@ -78,7 +78,7 @@ fun SettingsScreen(viewModel: TorchViewModel) {
             )
         }
 
-        SectionHeader("Screen and sound", viewModel.selectedColor)
+        SectionHeader("Screen", viewModel.selectedColor)
 
         SettingSwitchRow(
             title = "Brightness bar",
@@ -108,13 +108,6 @@ fun SettingsScreen(viewModel: TorchViewModel) {
             accent = viewModel.selectedColor,
             onCheckedChange = viewModel::updatePreventColorPickerScreenLock,
         )
-        SettingSwitchRow(
-            title = "Sound effects",
-            description = null,
-            checked = viewModel.soundEffectsEnabled,
-            accent = viewModel.selectedColor,
-            onCheckedChange = viewModel::updateSoundEffectsEnabled,
-        )
 
         HorizontalDivider(color = Color.White.copy(alpha = 0.12f), modifier = Modifier.padding(vertical = 12.dp))
 
@@ -135,7 +128,6 @@ fun SettingsScreen(viewModel: TorchViewModel) {
 
         Button(
             onClick = {
-                viewModel.click()
                 // A device with no browser would otherwise throw ActivityNotFoundException.
                 runCatching {
                     context.startActivity(

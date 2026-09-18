@@ -11,3 +11,8 @@
 *.hprof
 /app/release/
 *.apk
+
+# Release signing - private, never commit
+/keystore.properties
+*.jks
+*.keystore
