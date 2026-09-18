@@ -5,7 +5,7 @@ dot-matrix glyphs on a pure black (OLED-friendly) background, with every accent
 element following one user-selected color.
 
 <p align="center">
-  <img src="docs/home.png" alt="Glyphlight home screen: dotted brightness slider, moon glyph, dot-matrix torch button, SOS, and color swatches on pure black" width="300">
+  <img src="docs/torch.gif" alt="Glyphlight: tapping the dot-matrix torch button fills the screen with the selected color at the chosen brightness" width="270">
 </p>
 
 ## Features
