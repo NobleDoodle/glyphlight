@@ -1,5 +1,7 @@
 package com.glyphlight.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -11,10 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,14 +36,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.glyphlight.TorchViewModel
 
+/** Where the Support button sends people. */
+private const val SUPPORT_URL = "https://buymeacoffee.com/nobledoodle"
+
 @Composable
 fun SettingsScreen(viewModel: TorchViewModel) {
     var showAbout by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -111,6 +121,42 @@ fun SettingsScreen(viewModel: TorchViewModel) {
         SectionHeader("Other options", viewModel.selectedColor)
 
         SettingLinkRow(title = "About") { showAbout = true }
+
+        HorizontalDivider(color = Color.White.copy(alpha = 0.12f), modifier = Modifier.padding(vertical = 12.dp))
+
+        SectionHeader("Support", viewModel.selectedColor)
+
+        Text(
+            text = "Glyphlight is free and open source. If you find it useful, you can buy me a coffee.",
+            color = Color.White.copy(alpha = 0.55f),
+            fontSize = 13.sp,
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 14.dp),
+        )
+
+        Button(
+            onClick = {
+                viewModel.click()
+                // A device with no browser would otherwise throw ActivityNotFoundException.
+                runCatching {
+                    context.startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse(SUPPORT_URL))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    )
+                }
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = viewModel.selectedColor),
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+        ) {
+            Text(
+                text = "BUY ME A COFFEE",
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 1.sp,
+                modifier = Modifier.padding(vertical = 6.dp),
+            )
+        }
 
         Spacer(Modifier.height(32.dp))
     }

@@ -77,6 +77,11 @@ app/src/main/java/com/glyphlight/
   util/                     – color math, Morse timing, sound, SharedPreferences
 ```
 
+## Support
+
+Glyphlight is free and open source. If you find it useful, you can
+[buy me a coffee](https://buymeacoffee.com/nobledoodle).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
